@@ -1,20 +1,22 @@
 "use client";
+
+import { Suspense } from "react"; // 1. Suspense import karein
 import { useSearchParams } from "next/navigation";
-import { allProducts } from "@/data/products"; // Data yahan se aayega
+import { allProducts } from "@/data/products";
 import ProductSection from "@/components/ProductSection";
 
-export default function SearchPage() {
+// Search Logic ko alag component mein le jayein
+function SearchResults() {
   const searchParams = useSearchParams();
   const query = searchParams.get("q")?.toLowerCase() || "";
 
-  // Filtering Logic
-  const filteredProducts = allProducts.filter((p) =>
-    p.name.toLowerCase().includes(query) || 
-    p.specs.toLowerCase().includes(query)
+  const filteredProducts = allProducts.filter((product, index, self) =>
+    (product.name.toLowerCase().includes(query) || product.specs.toLowerCase().includes(query)) &&
+    self.findIndex(p => p.id === product.id) === index
   );
 
   return (
-    <div className="container mx-auto px-4 py-12 min-h-[60vh]">
+    <>
       <h1 className="text-2xl font-bold mb-6">
         Search Results for: <span className="text-red-600">"{query}"</span>
       </h1>
@@ -25,11 +27,22 @@ export default function SearchPage() {
         <div className="text-center py-20 bg-gray-50 rounded-xl border border-dashed border-gray-300">
           <h2 className="text-xl font-bold text-gray-800 mb-2">No products found</h2>
           <p className="text-gray-500">
-            We couldn't find any products matching <span className="font-bold">"{query}"</span>. 
-            Try a different keyword or check for typos.
+            We couldn't find any products matching <span className="font-bold">"{query}"</span>.
           </p>
         </div>
       )}
+    </>
+  );
+}
+
+// Main Page Component
+export default function SearchPage() {
+  return (
+    <div className="container mx-auto px-4 py-12 min-h-[60vh]">
+      {/* 2. Suspense Boundary lazmi hai build ke liye */}
+      <Suspense fallback={<div className="text-center py-10">Loading search results...</div>}>
+        <SearchResults />
+      </Suspense>
     </div>
   );
 }
