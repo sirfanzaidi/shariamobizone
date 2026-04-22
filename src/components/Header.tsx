@@ -113,7 +113,7 @@ export default function Header() {
           <div className="container mx-auto px-4 flex items-center gap-4">
             <Link href="/" className="flex-shrink-0 border border-transparent hover:border-white p-1 transition-all">
               <Image 
-                src="/logo.png"
+                src="/Logo.png"
                 alt="Sharia MobiZone"
                 width={170}
                 height={50}
