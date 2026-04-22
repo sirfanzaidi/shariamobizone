@@ -1,6 +1,6 @@
 "use client";
 
-import HeroSlider from "@/components/HeroSlider";
+
 import ProductSection from "@/components/ProductSection";
 
 // 6 Dummy Tablets Data
@@ -16,10 +16,7 @@ const allTablets = [
 export default function AllTabletsPage() {
   return (
     <main className="bg-[#f4f4f4] min-h-screen pb-20">
-      {/* Top Slider */}
-      <HeroSlider />
-
-      <div className="container mx-auto px-4">
+        <div className="container mx-auto px-4">
         {/* All Tablets Section */}
         <ProductSection 
           title="All Tablets & Prices in Mozambique" 

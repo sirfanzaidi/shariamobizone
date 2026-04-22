@@ -5,14 +5,12 @@ import React, { createContext, useContext, useState, ReactNode } from "react";
 // Exchange Rates (Base: MZN)
 const EXCHANGE_RATES: Record<string, number> = {
   MZN: 1,
-  PKR: 4.42,
   USD: 0.016,
   EUR: 0.015,
 };
 
 const CURRENCY_SYMBOLS: Record<string, string> = {
   MZN: "MT",
-  PKR: "Rs",
   USD: "$",
   EUR: "€",
 };

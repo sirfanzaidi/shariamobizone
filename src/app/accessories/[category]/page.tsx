@@ -1,7 +1,7 @@
 "use client";
 
 import { useParams } from "next/navigation";
-import HeroSlider from "@/components/HeroSlider";
+
 import ProductSection from "@/components/ProductSection";
 
 // Accessories Data (Vahi data jo main page par hai)
@@ -44,7 +44,7 @@ export default function AccessoryCategoryPage() {
 
   return (
     <main className="bg-[#f4f4f4] min-h-screen pb-20">
-      <HeroSlider />
+      
       <div className="container mx-auto px-4">
         {filteredProducts.length > 0 ? (
           <ProductSection 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useParams } from "next/navigation";
-import HeroSlider from "@/components/HeroSlider";
+
 import ProductSection from "@/components/ProductSection"; // Path check karlein
 
 // Dummy Data (Wahi jo Mobile Phones page par tha)
@@ -23,7 +23,7 @@ export default function BrandPage() {
 
   return (
     <main className="bg-[#f4f4f4] min-h-screen pb-20">
-      <HeroSlider />
+      
 
       <div className="container mx-auto px-4">
         {/* Ab title dynamic ho jayega: Apple Mobile Phones, Samsung Mobile Phones etc. */}

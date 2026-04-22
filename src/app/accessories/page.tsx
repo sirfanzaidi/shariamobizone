@@ -1,6 +1,6 @@
 "use client";
 
-import HeroSlider from "@/components/HeroSlider";
+
 import ProductSection from "@/components/ProductSection";
 
 // 6 Dummy Accessories Data
@@ -65,7 +65,7 @@ export default function AccessoriesPage() {
   return (
     <main className="bg-[#f4f4f4] min-h-screen pb-20">
       {/* Slider */}
-      <HeroSlider />
+      
 
       <div className="container mx-auto px-4">
         {/* Main Section */}

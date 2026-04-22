@@ -4,6 +4,7 @@ import "./globals.css";
 
 import { CurrencyProvider } from "@/context/CurrencyContext";
 import Header from "@/components/Header";
+import Footer from "@/components/Footer"; // 1. Footer ko import karein
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -21,17 +22,16 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <CurrencyProvider>
-        {/* Header yahan rakhne se ye har page par dikhega */}
-        <Header />
-        
-        {/* 'children' wo content hai jo har page.tsx se aata hai */}
-        <main>{children}</main>
+          {/* Header har page par dikhega */}
+          <Header />
+          
+          {/* Main content */}
+          <main>{children}</main>
+          
+          {/* 2. Footer ko CurrencyProvider ke andar ya bahar add karein */}
+          <Footer /> 
         </CurrencyProvider>
-        {/* Aap yahan Footer bhi add kar sakte hain baad mein */}
       </body>
     </html>
   );
 }
-
-
-

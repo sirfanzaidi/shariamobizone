@@ -1,61 +1,109 @@
+"use client";
 
-import Image from "next/image";
 import Link from "next/link";
+import Image from "next/image";
+import { Zap } from "lucide-react";
+import { useCurrency } from "@/context/CurrencyContext";
+import { useCartStore } from "@/store/useCartStore";
 
-interface ProductCardProps {
+// 1. Interface definition
+interface Product {
   id: string;
   name: string;
-  image: string;
+  specs: string;
   price: number;
   originalPrice?: number;
   discount?: number;
+  image: string;
 }
 
-export default function ProductCard({
-  id,
-  name,
-  image,
-  price,
-  originalPrice,
-  discount,
-}: ProductCardProps) {
-  const formatPrice = (price: number) => {
-    return price.toLocaleString("en-PK");
-  };
+interface ProductSectionProps {
+  title: string;
+  products: Product[];
+  viewAllLink?: string;
+}
+
+export default function ProductSection({ title, products, viewAllLink }: ProductSectionProps) {
+  const { formatPrice } = useCurrency();
+  const addToCart = useCartStore((state) => state.addToCart);
 
   return (
-    <Link href={`/product/${id}`} className="block">
-      <div className="product-card bg-white border border-gray-200 rounded-lg overflow-hidden relative">
-        {discount && (
-          <div className="discount-badge">
-            {discount}% OFF
-          </div>
+    <section className="py-8">
+      <div className="flex justify-between items-center mb-6 border-b-2 border-red-600 pb-2">
+        <h2 className="text-xl font-bold text-gray-800 uppercase italic flex items-center gap-2">
+          <div className="w-2 h-6 bg-red-600"></div>
+          {title}
+        </h2>
+        {viewAllLink && (
+          <Link href={viewAllLink} className="text-sm font-bold text-red-600 hover:underline uppercase">
+            View All
+          </Link>
         )}
-        <div className="p-4">
-          <div className="aspect-square relative mb-3">
-            <Image
-              src={image}
-              alt={name}
-              fill
-              className="object-contain"
-            />
-          </div>
-          <h3 className="text-sm font-medium text-gray-800 text-center line-clamp-2 min-h-[40px]">
-            {name}
-          </h3>
-          <div className="mt-2 text-center">
-            <span className="text-xs text-gray-500">Rs</span>
-            <span className="text-lg font-bold text-[#d21e25] ml-1">
-              {formatPrice(price)}
-            </span>
-            {originalPrice && (
-              <div className="text-xs text-gray-400 line-through">
-                Rs {formatPrice(originalPrice)}
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
+        {products.map((product) => (
+          <Link 
+            key={product.id} 
+            href={`/product/${product.id}`} 
+            className="group bg-white rounded-lg p-4 shadow-sm hover:shadow-md transition-all border border-gray-100 flex flex-col h-full relative"
+          >
+            {product.discount && product.discount > 0 && (
+              <div className="absolute top-2 right-2 z-10 bg-red-600 text-white text-[10px] font-bold px-2 py-1 rounded italic border border-yellow-400">
+                {product.discount}% OFF
               </div>
             )}
-          </div>
-        </div>
+
+            <div className="relative h-48 w-full mb-4 bg-white">
+              <Image
+                src={product.image}
+                alt={product.name}
+                fill
+                sizes="(max-width: 768px) 100vw, 150px"
+                className="object-contain group-hover:scale-105 transition-transform duration-300"
+              />
+            </div>
+
+            <div className="flex-1 flex flex-col">
+              <h3 className="text-sm font-bold text-gray-800 line-clamp-2 mb-1 group-hover:text-red-600 transition-colors">
+                {product.name} {product.specs}
+              </h3>
+              
+              <div className="mt-auto pt-4 border-t border-gray-50">
+                <div className="flex flex-col mb-3">
+                  <span className="text-lg font-bold text-red-600">
+                    {formatPrice(product.price)}
+                  </span>
+                  {product.originalPrice && product.originalPrice > 0 && (
+                    <div className="flex items-center gap-2">
+                      <span className="text-gray-400 line-through text-xs italic">
+                        {formatPrice(product.originalPrice)}
+                      </span>
+                    </div>
+                  )}
+                </div>
+
+                {/* 2. Fix: Inline arrow function to avoid 'Product' name error */}
+                <button 
+                  onClick={(e) => {
+                    e.preventDefault();
+                    addToCart({
+                      id: product.id,
+                      name: product.name,
+                      price: product.price,
+                      image: product.image,
+                      quantity: 1,
+                    });
+                  }}
+                  className="w-full bg-[#ffd814] hover:bg-[#f7ca00] text-[#0f1111] py-2 rounded-lg text-xs font-bold transition-all shadow-sm border border-[#fcd200] active:scale-95"
+                >
+                  ADD TO CART
+                </button>
+              </div>
+            </div>
+          </Link>
+        ))}
       </div>
-    </Link>
+    </section>
   );
 }

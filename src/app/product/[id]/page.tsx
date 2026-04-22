@@ -1,124 +1,135 @@
 "use client";
 
-import { useState } from "react";
-import { useParams } from "next/navigation";
+import { useCartStore } from "@/store/useCartStore";
+import { useCurrency } from "@/context/CurrencyContext";
 import Image from "next/image";
-import { ChevronLeft, ChevronRight, Zap } from "lucide-react";
+import { useParams } from "next/navigation";
+import { ShoppingCart, Zap, ShieldCheck, Truck } from "lucide-react";
 
 export default function ProductDetailPage() {
   const params = useParams();
-  const [activeFilter, setActiveFilter] = useState("");
+  const { formatPrice } = useCurrency();
+  const addToCart = useCartStore((state) => state.addToCart);
 
-  // Ye dummy logic hai, real app mein aap ID se database se data nikalenge
-  const isTablet = params.id?.toString().startsWith("tab-");
-  const isAccessory = params.id?.toString().startsWith("acc-");
-
-  let categoryLabel = "Mobile Phones";
-  if (isTablet) categoryLabel = "Tablets";
-  if (isAccessory) categoryLabel = "Accessories";
-
+  // Note: Yahan aap apna asli products data fetch karein ge
+  // Abhi ke liye hum placeholder data use kar rahe hain testing ke liye
   const product = {
-    name: isTablet ? "Premium Tablet Series" : "Oppo A6c",
-    specs: isTablet ? "(Multi-Color 256GB + 8GB)" : "(Feather White 64GB + 4GB)",
-    price: isTablet ? "145,000" : "33,900",
-    oldPrice: isTablet ? "155,000" : "34,999",
-    discount: isTablet ? "6% OFF" : "3% OFF",
-    image: isTablet ? "/products/ipad-pro.jpg" : "/products/oppo-a6c.jpg",
+    id: params.id as string,
+    name: "Product Name", // Replace with real product name logic
+    price: 45000,
+    image: "/products/oppo-a6c.jpg", // Replace with real image path
+    description: "Premium quality mobile with advanced features and long battery life.",
   };
 
-  const colorOptions = [
-    { id: 1, name: "Default", filter: "" },
-    { id: 2, name: "Deep Gray", filter: "brightness(0.5) contrast(1.2)" },
-    { id: 3, name: "Silver Shine", filter: "saturate(0) brightness(1.2)" },
-  ];
-
-  const specifications = [
-    { label: "Display", value: isTablet ? "12.9 inches Liquid Retina XDR" : "6.75 inches IPS LCD" },
-    { label: "Battery", value: isTablet ? "10,000 mAh with Fast Charging" : "7,000 mAh Li-Po" },
-    { label: "Processor", value: isTablet ? "M4 Chip / Snapdragon 8 Gen 2" : "Unisoc T7280 Octa-core" },
-    { label: "Memory", value: isTablet ? "256GB Built-in, 8GB RAM" : "64GB Built-in, 4GB RAM" },
-    { label: "OS", value: "Android 16 / iPadOS 17" },
-    { label: "Camera", value: "13MP Main, 12MP Ultra-wide" },
-  ];
+  const handleAddToCart = () => {
+    addToCart({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      image: product.image,
+      quantity: 1,
+    });
+    // Optional: Alert ko hata dein ya success message dikhayein
+    // alert("Added to cart!"); 
+  };
 
   return (
-    <div className="bg-[#f8f9fa] min-h-screen py-8">
-      <div className="container mx-auto px-4">
-        
-        {/* TOP SECTION: IMAGE & PRICE */}
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-8 flex flex-col md:flex-row gap-8">
+    <div className="bg-white min-h-screen py-6 md:py-10">
+      <div className="container mx-auto px-4 max-w-7xl">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           
-          {/* Left: Gallery */}
-          <div className="w-full md:w-1/2">
-            <div className="relative h-[400px] w-full border border-gray-100 mb-6 rounded-lg bg-white overflow-hidden">
+          {/* LEFT: Image Section */}
+          <div className="lg:col-span-1">
+            <div className="relative aspect-square border border-gray-100 rounded-xl overflow-hidden bg-white shadow-sm">
               <Image 
                 src={product.image} 
                 alt={product.name} 
                 fill 
-                className="object-contain p-4 transition-all duration-500"
-                style={{ filter: activeFilter }} 
+                className="object-contain p-6"
+                priority
               />
             </div>
-
-            {/* Color Thumbnails */}
-            <div className="flex items-center justify-center gap-4 relative max-w-sm mx-auto">
-              <button className="p-1 bg-red-600 rounded-full text-white absolute -left-6 z-10 hover:bg-red-700"><ChevronLeft size={20}/></button>
-              <div className="flex gap-3">
-                {colorOptions.map((color) => (
-                  <div 
-                    key={color.id} 
-                    onClick={() => setActiveFilter(color.filter)}
-                    className={`border-2 rounded-md p-1 w-20 h-20 relative cursor-pointer ${activeFilter === color.filter ? "border-red-600" : "border-gray-200"}`}
-                  >
-                    <Image src={product.image} alt={color.name} fill className="object-contain" style={{ filter: color.filter }} />
-                  </div>
-                ))}
-              </div>
-              <button className="p-1 bg-red-600 rounded-full text-white absolute -right-6 z-10 hover:bg-red-700"><ChevronRight size={20}/></button>
-            </div>
           </div>
 
-          {/* Right: Details */}
-          <div className="w-full md:w-1/2 flex flex-col pt-2">
-            <h1 className="text-xl md:text-2xl font-semibold text-gray-800 uppercase leading-tight">
-              {product.name} {product.specs} - Price & Specs
+          {/* MIDDLE: Product Info */}
+          <div className="lg:col-span-1">
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2 leading-tight">
+              {product.name}
             </h1>
-            <div className="my-4"><span className="bg-[#51b478] text-white text-[10px] px-2 py-0.5 rounded font-bold uppercase">In Stock</span></div>
-            <div className="flex flex-col gap-0.5 mb-6">
-              <div className="flex items-baseline gap-1">
-                <span className="text-sm font-bold text-[#d21e25]">Rs</span>
-                <span className="text-3xl font-bold text-[#d21e25]">{product.price}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-gray-400 line-through text-lg italic">Rs {product.oldPrice}</span>
-                <span className="bg-[#4d94ff] text-white text-[10px] px-3 py-1 rounded-full flex items-center gap-1 font-bold uppercase">
-                   <Zap size={10} fill="white"/> {isTablet ? "Tablets" : "Mobile Phones"}
-                </span>
-              </div>
+            <p className="text-[#007185] hover:underline cursor-pointer text-sm mb-4">Visit the Store</p>
+            
+            <div className="flex items-center gap-2 mb-4">
+              <div className="flex text-yellow-400">★★★★☆</div>
+              <span className="text-[#007185] text-sm italic">1,240 ratings</span>
             </div>
-            <div className="inline-block w-fit bg-red-600 text-white font-bold py-2 px-8 rounded-md border-2 border-yellow-400 shadow-[0_4px_0_0_rgba(181,26,32,1)] uppercase italic">
-              {product.discount}
+
+            <hr className="mb-6 border-gray-200" />
+            
+            <div className="mb-6">
+              <span className="text-3xl font-medium text-red-700">
+                {formatPrice(product.price)}
+              </span>
+              <p className="text-sm text-gray-500 mt-1">Inclusive of all taxes</p>
+            </div>
+
+            <div className="space-y-4">
+              <h3 className="font-bold text-sm uppercase tracking-wider text-gray-600">About this item:</h3>
+              <ul className="list-disc ml-5 space-y-2 text-sm text-gray-700 leading-relaxed">
+                <li>High-performance processor for seamless multitasking.</li>
+                <li>Stunning display quality for an immersive experience.</li>
+                <li>Long-lasting battery with fast charging support.</li>
+                <li>Professional grade camera system.</li>
+              </ul>
             </div>
           </div>
-        </div>
 
-        {/* BOTTOM SECTION: SPECS TABLE */}
-        <div className="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-200">
-          <div className="bg-[#0052cc] p-3 flex items-center justify-between">
-            <h2 className="text-white font-bold text-sm uppercase">Specifications of {product.name}</h2>
+          {/* RIGHT: Checkout Box */}
+          <div className="lg:col-span-1">
+            <div className="border border-gray-300 rounded-2xl p-6 sticky top-24 shadow-md bg-white">
+              <div className="text-2xl font-bold text-gray-900 mb-2">
+                {formatPrice(product.price)}
+              </div>
+              
+              <div className="flex items-center gap-2 text-sm text-gray-600 mb-4 font-medium">
+                <Truck size={18} className="text-gray-400" />
+                <span>FREE delivery in 24 hours</span>
+              </div>
+
+              <div className="text-green-700 font-bold text-lg mb-6">In Stock</div>
+
+              <div className="space-y-3">
+                <button 
+                  onClick={handleAddToCart}
+                  className="w-full bg-[#ffd814] hover:bg-[#f7ca00] text-black py-3 rounded-full font-bold text-sm shadow-sm transition-all border border-[#fcd200] flex items-center justify-center gap-2"
+                >
+                  <ShoppingCart size={18} /> Add to Cart
+                </button>
+
+                <button 
+                  className="w-full bg-[#ffa41c] hover:bg-[#fa8914] text-black py-3 rounded-full font-bold text-sm shadow-sm transition-all flex items-center justify-center gap-2"
+                >
+                  <Zap size={18} /> Buy Now
+                </button>
+              </div>
+
+              <div className="mt-8 space-y-3 text-xs text-gray-600 border-t pt-6">
+                <div className="flex justify-between">
+                  <span>Ships from:</span>
+                  <span className="font-semibold text-gray-900">Sharia MobiZone</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Sold by:</span>
+                  <span className="font-semibold text-gray-900">Sharia MobiZone</span>
+                </div>
+                <div className="flex items-center gap-2 text-[#007185] cursor-pointer hover:underline">
+                  <ShieldCheck size={14} />
+                  <span>Secure transaction</span>
+                </div>
+              </div>
+            </div>
           </div>
-          <table className="w-full border-collapse">
-            <tbody>
-              {specifications.map((spec, index) => (
-                <tr key={index} className={index % 2 === 0 ? "bg-white" : "bg-[#fcfcfc]"}>
-                  <td className="p-4 border border-gray-100 font-bold text-gray-700 w-1/4 text-sm bg-[#fcfcfc]">{spec.label}</td>
-                  <td className="p-4 border border-gray-100 text-gray-600 text-sm">{spec.value}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
 
+        </div>
       </div>
     </div>
   );

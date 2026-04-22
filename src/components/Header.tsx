@@ -1,19 +1,23 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react"; // useEffect add kiya
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import {
   Search,
   Phone,
-  Mail,
   ChevronDown,
   Menu,
   X,
   ShoppingCart,
+  MapPin,
+  User,
+  ChevronRight,
 } from "lucide-react";
+
 import { useCurrency } from "@/context/CurrencyContext";
+import { useCartStore } from "@/store/useCartStore";
 
 const navItems = [
   { name: "Home", href: "/" },
@@ -21,212 +25,198 @@ const navItems = [
     name: "Mobile Phones",
     href: "/mobile-phones",
     dropdown: [
-      "All Mobile Phones", "APPLE Mobile Phones", "SAMSUNG Mobile Phones",
-      "XIAOMI Mobile Phones", "OPPO Mobile Phones", "REALME Mobile Phones",
-      "INFINIX Mobile Phones", "TECNO Mobile Phones", "VIVO Mobile Phones",
-      "NOKIA Mobile Phones",
+      "All Mobile Phones", "APPLE", "SAMSUNG", "XIAOMI", "OPPO", 
+      "REALME", "INFINIX", "TECNO", "VIVO", "NOKIA",
     ],
   },
   {
     name: "Tablets",
     href: "/tablets",
     dropdown: [
-      "All Tablets", "Apple iPads", "Samsung Tablets",
-      "Xiaomi Tablets", "Huawei Tablets",
+      "All Tablets", "Apple iPads", "Samsung Tablets", "Xiaomi Tablets", "Huawei Tablets",
     ],
   },
   {
     name: "Accessories",
     href: "/accessories",
     dropdown: [
-      "All Accessories", "Headphones & Speakers", "Power Banks",
+      "All Accessories", "Headphones & Speakers", "Power Banks", 
       "Chargers & Cables", "Cases & Screen Protectors",
     ],
   },
 ];
 
 export default function Header() {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [mounted, setMounted] = useState(false); // Hydration check
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const { currency, setCurrency } = useCurrency();
   const router = useRouter();
 
+  const cart = useCartStore((state) => state.cart);
+  const cartCount = cart.reduce((acc, item) => acc + item.quantity, 0);
+
+  // --- FIX: Hydration Handle ---
+  // Jab component browser mein mount ho jaye tab 'mounted' ko true karein
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
       router.push(`/search?q=${encodeURIComponent(searchQuery)}`);
-      setMobileMenuOpen(false);
+      setIsSidebarOpen(false);
     }
   };
 
   const getHrefPath = (item: any, subItem: string) => {
     const isAll = subItem.toLowerCase().includes("all");
     if (isAll) return item.href;
+    if (item.name === "Mobile Phones") return `/brand/${subItem.toLowerCase()}`;
     const slug = subItem.toLowerCase().replace(/\s+/g, "-");
-    if (item.name === "Mobile Phones") {
-      const brandOnly = subItem.split(" ")[0].toLowerCase();
-      return `/brand/${brandOnly}`;
-    }
     return `${item.href}/${slug}`;
   };
 
   return (
-    <header className="w-full sticky top-0 z-50 bg-white shadow-sm">
-      {/* Top Bar */}
-      <div className="bg-[#51b478] text-white text-[11px] py-1.5">
-        <div className="container mx-auto px-4 flex justify-between items-center">
-          <span className="hidden md:block font-medium">
-            Best Mobile Shop in Mozambique
-          </span>
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2 bg-white/20 px-2 py-0.5 rounded border border-white/30">
-              <span className="text-[10px] font-bold">CURRENCY:</span>
-              <select
-                value={currency}
-                onChange={(e) => setCurrency(e.target.value)}
-                className="bg-transparent text-[11px] font-bold outline-none cursor-pointer text-white"
-              >
-                <option value="MZN" className="text-black">MZN</option>
-                <option value="PKR" className="text-black">PKR</option>
-                <option value="USD" className="text-black">USD</option>
-                <option value="EUR" className="text-black">EUR</option>
-              </select>
-            </div>
-            <a href="tel:+258840463231" className="flex items-center gap-1 font-bold">
-              <Phone size={12} /> +258 840 463 231
-            </a>
+    <>
+      {/* --- AMAZON SIDEBAR (DRAWER) --- */}
+      <div 
+        className={`fixed inset-0 bg-black/70 z-[100] transition-opacity duration-300 ${isSidebarOpen ? "opacity-100 visible" : "opacity-0 invisible"}`} 
+        onClick={() => setIsSidebarOpen(false)}
+      />
+      <div className={`fixed top-0 left-0 h-full w-[280px] md:w-[350px] bg-white z-[101] shadow-2xl transform transition-transform duration-300 ease-in-out ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}`}>
+        <div className="bg-[#232f3e] text-white p-4 flex items-center gap-3">
+          <div className="w-8 h-8 bg-gray-400 rounded-full flex items-center justify-center"><User size={20} /></div>
+          <p className="font-bold text-lg">Hello, Sign In</p>
+          <X size={24} className="ml-auto cursor-pointer" onClick={() => setIsSidebarOpen(false)} />
+        </div>
+        <div className="overflow-y-auto h-full pb-20">
+          <div className="py-4 border-b">
+            <h3 className="px-6 text-lg font-bold text-gray-900 mb-2">Shop By Category</h3>
+            <ul className="text-sm text-gray-700">
+              {navItems.map((item) => (
+                <Link key={item.name} href={item.href} onClick={() => setIsSidebarOpen(false)}>
+                  <li className="px-6 py-3 hover:bg-gray-100 flex justify-between items-center">
+                    {item.name} <ChevronRight size={16} className="text-gray-400" />
+                  </li>
+                </Link>
+              ))}
+            </ul>
           </div>
         </div>
       </div>
 
-      {/* Main Header Bar */}
-      <div className="bg-white">
-        <div className="container mx-auto px-4 py-2 flex items-center justify-between gap-4">
-          
-          {/* 1. Logo (Smaller) */}
-          <Link href="/" className="flex-shrink-0">
-            <Image
-              src="/products/Logo.png"
-              alt="shariaMobiZone"
-              width={150}
-              height={45}
-              className="h-8 md:h-10 w-auto object-contain"
-              priority
-            />
-          </Link>
+      <header className="w-full sticky top-0 z-50">
+        <div className="bg-[#131921] text-white py-2">
+          <div className="container mx-auto px-4 flex items-center gap-4">
+            <Link href="/" className="flex-shrink-0 border border-transparent hover:border-white p-1 transition-all">
+              <Image 
+                src="/logo.png"
+                alt="Sharia MobiZone"
+                width={170}
+                height={50}
+                className="object-contain"
+                priority
+              />
+            </Link>
 
-          {/* 2. Middle Navigation (Desktop) */}
-          <nav className="hidden lg:flex items-center gap-1 flex-1 justify-center">
-            {navItems.map((item) => (
-              <div
-                key={item.name}
-                className="relative group"
-                onMouseEnter={() => setActiveDropdown(item.name)}
-                onMouseLeave={() => setActiveDropdown(null)}
-              >
-                <Link
-                  href={item.href}
-                  className="px-3 py-2 text-[11px] xl:text-[12px] font-extrabold text-gray-700 hover:text-[#51b478] uppercase tracking-tighter flex items-center gap-0.5 whitespace-nowrap transition-colors"
-                >
-                  {item.name}
-                  {item.dropdown && <ChevronDown size={12} className="opacity-50" />}
-                </Link>
-
-                {item.dropdown && activeDropdown === item.name && (
-                  <div className="absolute left-0 top-full bg-white shadow-xl border border-gray-100 py-2 min-w-[200px] z-50">
-                    {item.dropdown.map((sub) => (
-                      <Link
-                        key={sub}
-                        href={getHrefPath(item, sub)}
-                        className="block px-5 py-2 text-[11px] text-gray-700 hover:bg-gray-50 hover:text-[#51b478] font-bold border-l-2 border-transparent hover:border-[#51b478]"
-                      >
-                        {sub}
-                      </Link>
-                    ))}
-                  </div>
-                )}
+            <div className="hidden lg:flex items-center border border-transparent hover:border-white p-1 cursor-pointer">
+              <MapPin size={16} className="mt-2 text-gray-300" />
+              <div className="ml-1">
+                <p className="text-[11px] text-gray-400 leading-none">Deliver to</p>
+                <p className="text-[13px] font-bold leading-none">Pakistan</p>
               </div>
-            ))}
-          </nav>
-
-          {/* 3. Search Bar (Compact) */}
-          <form onSubmit={handleSearch} className="hidden md:flex max-w-[240px] xl:max-w-[300px] w-full">
-            <div className="flex w-full relative">
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search..."
-                className="w-full pl-4 pr-10 py-1.5 border border-gray-300 rounded-full focus:outline-none focus:border-[#51b478] text-xs transition-all"
-              />
-              <button type="submit" className="absolute right-0 top-0 h-full px-3 text-gray-400 hover:text-[#d21e25]">
-                <Search size={16} />
-              </button>
             </div>
-          </form>
 
-          {/* 4. Action Icons */}
-          <div className="flex items-center gap-3">
-            <button className="relative text-gray-700 hover:text-[#d21e25] transition-colors">
-              <ShoppingCart size={22} />
-              <span className="absolute -top-1.5 -right-1.5 bg-[#d21e25] text-white text-[9px] w-4 h-4 rounded-full flex items-center justify-center font-bold">
-                0
-              </span>
-            </button>
-            <button className="lg:hidden text-gray-700" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
-              {mobileMenuOpen ? <X size={26} /> : <Menu size={26} />}
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Mobile Menu Panel */}
-      {mobileMenuOpen && (
-        <div className="lg:hidden bg-white fixed inset-0 top-[100px] z-40 overflow-y-auto pb-20 border-t">
-          <div className="p-4 bg-gray-50">
-            <form onSubmit={handleSearch} className="flex relative">
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search products..."
-                className="w-full p-2.5 border rounded-full pl-4 pr-12 outline-none focus:border-[#51b478]"
-              />
-              <button type="submit" className="absolute right-2 top-1/2 -translate-y-1/2 bg-[#d21e25] text-white p-1.5 rounded-full">
-                <Search size={18} />
-              </button>
+            <form onSubmit={handleSearch} className="flex-1 flex h-10 items-center">
+              <div className="flex w-full h-full relative group">
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search Sharia MobiZone"
+                  className="w-full h-full rounded-l-md px-4 text-black text-sm focus:outline-none"
+                />
+                <button type="submit" className="bg-[#febd69] hover:bg-[#f3a847] h-full px-5 rounded-r-md flex items-center justify-center transition-colors">
+                  <Search className="text-[#131921]" size={20} />
+                </button>
+              </div>
             </form>
-          </div>
-          <ul className="divide-y divide-gray-100">
-            {navItems.map((item) => (
-              <li key={item.name} className="flex flex-col">
-                <Link
-                  href={item.href}
-                  className="px-6 py-4 text-gray-800 font-bold uppercase text-sm flex justify-between items-center"
-                  onClick={() => setMobileMenuOpen(false)}
+
+            <div className="flex items-center gap-2 md:gap-4">
+              <div className="hidden sm:flex flex-col border border-transparent hover:border-white p-1">
+                <span className="text-[10px] text-gray-400 font-bold uppercase leading-none">Currency</span>
+                <select
+                  value={currency}
+                  onChange={(e) => setCurrency(e.target.value)}
+                  className="bg-transparent text-[13px] font-bold outline-none cursor-pointer text-white"
                 >
-                  {item.name}
-                </Link>
-                {item.dropdown && (
-                  <div className="bg-gray-50 px-8 py-2 grid grid-cols-1 gap-2">
-                    {item.dropdown.slice(0, 6).map((sub) => (
-                      <Link
-                        key={sub}
-                        href={getHrefPath(item, sub)}
-                        className="py-1.5 text-xs text-gray-600 font-medium"
-                        onClick={() => setMobileMenuOpen(false)}
-                      >
-                        {sub}
-                      </Link>
-                    ))}
-                  </div>
-                )}
-              </li>
-            ))}
-          </ul>
+                  <option value="MNZ" className="text-black">MNZ</option>
+                  <option value="USD" className="text-black">USD</option>
+                  <option value="EUR" className="text-black">EUR</option>
+                </select>
+              </div>
+
+              {/* --- UPDATED CART SECTION --- */}
+              <Link href="/cart" className="flex items-center border border-transparent hover:border-white p-1 relative h-10">
+                <div className="relative">
+                  <ShoppingCart size={32} />
+                  {/* Mounted check: Sirf browser load hone ke baad count dikhaye ga */}
+                  {mounted && (
+                    <span className="absolute -top-1 left-1/2 -translate-x-1/2 text-[#f3a847] text-[16px] font-bold">
+                      {cartCount}
+                    </span>
+                  )}
+                </div>
+                <p className="hidden md:block font-bold self-end mb-1 ml-1 text-sm">Cart</p>
+              </Link>
+            </div>
+          </div>
         </div>
-      )}
-    </header>
+
+        {/* BOTTOM LAYER */}
+        <div className="bg-[#232f3e] text-white px-4 py-1 flex items-center gap-1 md:gap-4 text-[13px] font-medium relative z-40">
+          <button
+            onClick={() => setIsSidebarOpen(true)}
+            className="flex items-center gap-1 border border-transparent hover:border-white px-2 py-1 font-bold whitespace-nowrap"
+          >
+            <Menu size={18} /> All
+          </button>
+
+          {navItems.map((item) => (
+            <div
+              key={item.name}
+              className="relative group whitespace-nowrap"
+              onMouseEnter={() => setActiveDropdown(item.name)}
+              onMouseLeave={() => setActiveDropdown(null)}
+            >
+              <Link href={item.href} className="border border-transparent hover:border-white px-2 py-1 flex items-center gap-0.5 transition-all">
+                {item.name} {item.dropdown && <ChevronDown size={14} className="opacity-60" />}
+              </Link>
+
+              {item.dropdown && activeDropdown === item.name && (
+                <div className="absolute left-0 top-[100%] bg-white shadow-2xl border border-gray-200 py-3 min-w-[220px] z-[999] text-gray-800 rounded-b-sm">
+                  {item.dropdown.map((sub) => (
+                    <Link
+                      key={sub}
+                      href={getHrefPath(item, sub)}
+                      className="block px-6 py-2 hover:bg-gray-100 hover:text-[#007185] transition-colors font-semibold text-xs border-b border-gray-50 last:border-0"
+                      onClick={() => setActiveDropdown(null)}
+                    >
+                      {sub}
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
+
+          <div className="ml-auto hidden md:flex items-center gap-2 text-[#febd69] font-bold whitespace-nowrap">
+            <Phone size={14} /> 847772888          </div>
+        </div>
+      </header>
+    </>
   );
 }

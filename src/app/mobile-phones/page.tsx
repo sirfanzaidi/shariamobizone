@@ -1,6 +1,6 @@
 "use client";
 
-import HeroSlider from "@/components/HeroSlider";
+
 import ProductSection from "@/components/ProductSection";
 
 // Full Dummy Data with Specs and IDs
@@ -16,7 +16,7 @@ const allMobileProducts = [
 export default function MobilePhonesPage() {
   return (
     <main className="bg-[#f4f4f4] min-h-screen pb-20">
-      <HeroSlider />
+      
 
       <div className="container mx-auto px-4">
         {/* All Mobiles Section */}
