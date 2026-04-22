@@ -20,7 +20,7 @@ export const allProducts: Product[] = [
     price: 33900,
     originalPrice: 34999,
     discount: 3,
-    image: "/products/oppo-a6c.jpg",
+    image: "/products/oppo-A6c - Copy.jpg",
     category: "Mobile Phones",
     description: "A sleek and lightweight smartphone featuring a stunning Feather White finish, 4GB RAM for smooth multitasking, and reliable performance for daily use.",
   },

@@ -11,7 +11,7 @@ export default function HomePage() {
 
   // Categories paths check kar lein
   const categories = [
-    { title: "Mobile Phones", image: "/products/oppo-a6c.jpg", link: "/mobile-phones" },
+    { title: "Mobile Phones", image: "/products/oppo-A6c - Copy.jpg", link: "/mobile-phones" },
     { title: "Tablets", image: "/products/mi-pad-6.jpg", link: "/tablets" },
     { title: "Accessories", image: "/products/sony-xm5.jpg", link: "/accessories" },
     { title: "Latest Deals", image: "/products/S26plus.jpg", link: "/deals" },

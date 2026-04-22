@@ -5,7 +5,7 @@ import ProductSection from "@/components/ProductSection";
 
 // Full Dummy Data with Specs and IDs
 const allMobileProducts = [
-  { id: "1", name: "Oppo A6c", specs:"(Feather White 64GB + 4GB)", price: 33900, originalPrice: 34999, discount: 3, image: "/products/oppo-a6c.jpg" },
+  { id: "1", name: "Oppo A6c", specs:"(Feather White 64GB + 4GB)", price: 33900, originalPrice: 34999, discount: 3, image: "/products/oppo-A6c - Copy.jpg" },
   { id: "2", name: "Tecno Camon 50 4G", specs: "(Black 256GB + 8GB)", price: 74000, originalPrice: 75000, discount: 1, image: "/products/Tecno-Camon-50-4G.jpg" },
   { id: "3", name: "Infinix Note 60 Pro 5G", specs: "(256GB + 8GB)", price: 109999, originalPrice: 0, discount: 0, image: "/products/Infinix-Note-60-Pro-5G.jpg" },
   { id: "4", name: "Xiaomi Poco C85 4G", specs: "(Black 256GB + 8GB)", price: 44500, originalPrice: 47999, discount: 7, image: "/products/Xiaomi-Poco-C85-4G.jpg" },

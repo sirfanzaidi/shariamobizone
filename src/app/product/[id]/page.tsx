@@ -2,6 +2,7 @@
 
 import { useCartStore } from "@/store/useCartStore";
 import { useCurrency } from "@/context/CurrencyContext";
+import { allProducts } from "@/data/products"; // Step 1 wali file import karein
 import Image from "next/image";
 import { useParams } from "next/navigation";
 import { ShoppingCart, Zap, ShieldCheck, Truck } from "lucide-react";
@@ -11,15 +12,18 @@ export default function ProductDetailPage() {
   const { formatPrice } = useCurrency();
   const addToCart = useCartStore((state) => state.addToCart);
 
-  // Note: Yahan aap apna asli products data fetch karein ge
-  // Abhi ke liye hum placeholder data use kar rahe hain testing ke liye
-  const product = {
-    id: params.id as string,
-    name: "Product Name", // Replace with real product name logic
-    price: 45000,
-    image: "/products/oppo-a6c.jpg", // Replace with real image path
-    description: "Premium quality mobile with advanced features and long battery life.",
-  };
+  // --- MAIN FIX: ID ke mutabiq product find karein ---
+  const product = allProducts.find((p) => p.id === params.id);
+
+  // Agar product nahi mila (wrong ID)
+  if (!product) {
+    return (
+      <div className="text-center py-20">
+        <h1 className="text-2xl font-bold">Product Not Found!</h1>
+        <p>Maazrat, yeh product majood nahi hai.</p>
+      </div>
+    );
+  }
 
   const handleAddToCart = () => {
     addToCart({
@@ -29,8 +33,6 @@ export default function ProductDetailPage() {
       image: product.image,
       quantity: 1,
     });
-    // Optional: Alert ko hata dein ya success message dikhayein
-    // alert("Added to cart!"); 
   };
 
   return (
@@ -75,10 +77,10 @@ export default function ProductDetailPage() {
             <div className="space-y-4">
               <h3 className="font-bold text-sm uppercase tracking-wider text-gray-600">About this item:</h3>
               <ul className="list-disc ml-5 space-y-2 text-sm text-gray-700 leading-relaxed">
+                <li>{product.description}</li>
+                <li>{product.specs}</li>
                 <li>High-performance processor for seamless multitasking.</li>
-                <li>Stunning display quality for an immersive experience.</li>
                 <li>Long-lasting battery with fast charging support.</li>
-                <li>Professional grade camera system.</li>
               </ul>
             </div>
           </div>
@@ -128,7 +130,6 @@ export default function ProductDetailPage() {
               </div>
             </div>
           </div>
-
         </div>
       </div>
     </div>
